@@ -34,9 +34,14 @@ public interface IConnectorFactory {
      * @param api the managed API being invoked
      * @param requiredAuthType the required authorization type
      * @param hasDataPolicy if the policy chain contains a data policy
+     * @param connectorConfig the backend connector config. May have been modified by policies.
      * @return a connector to the back-end API
      */
-    public IApiConnector createConnector(ApiRequest request, Api api,
-            RequiredAuthType requiredAuthType, boolean hasDataPolicy);
+    public IApiConnector createConnector(ApiRequest request,
+            Api api,
+            RequiredAuthType requiredAuthType,
+            boolean hasDataPolicy,
+            IConnectorConfig connectorConfig);
 
+    public IConnectorConfig createConnectorConfig();
 }
