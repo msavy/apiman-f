@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package io.apiman.gateway.engine.impl;
+package io.apiman.test.policies;
 
-import io.apiman.gateway.engine.IConnectorConfig;
+import io.apiman.gateway.engine.impl.AbstractConnectorConfig;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
-/**
- * Test implementation of {@link IConnectorConfig}
- *
- * @author Marc Savy {@literal <marc@rhymewithgravy.com>}
- */
+
 @SuppressWarnings("nls")
-public class TestConnectorConfigImpl extends AbstractConnectorConfig {
+public class PolicyTesterConnectorConfig extends AbstractConnectorConfig {
     static final Set<String> REQUEST = new LinkedHashSet<>();
     static final Set<String> RESPONSE = new LinkedHashSet<>();
 
@@ -39,7 +35,7 @@ public class TestConnectorConfigImpl extends AbstractConnectorConfig {
         RESPONSE.add("Connection");
     }
 
-    public TestConnectorConfigImpl() {
+    public PolicyTesterConnectorConfig() {
         super(REQUEST, RESPONSE);
     }
 }

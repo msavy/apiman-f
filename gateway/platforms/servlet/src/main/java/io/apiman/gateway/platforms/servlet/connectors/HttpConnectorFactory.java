@@ -149,4 +149,9 @@ public class HttpConnectorFactory implements IConnectorFactory {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public IConnectorConfig createConnectorConfig(ApiRequest request, Api api) {
+        return new ConnectorConfigImpl();
+    }
 }

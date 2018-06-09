@@ -21,7 +21,6 @@ import io.apiman.common.logging.IDelegateFactory;
 import io.apiman.gateway.engine.IComponent;
 import io.apiman.gateway.engine.IComponentRegistry;
 import io.apiman.gateway.engine.IConnectorConfig;
-import io.apiman.gateway.engine.IConnectorFactory;
 import io.apiman.gateway.engine.beans.exceptions.ComponentNotFoundException;
 import io.apiman.gateway.engine.beans.exceptions.InterceptorAlreadyRegisteredException;
 
@@ -37,24 +36,21 @@ public class PolicyContextImpl implements IPolicyContext {
 
     private final IComponentRegistry componentRegistry;
     private final Map<String, Object> conversation = new HashMap<>();
-    private final IConnectorConfig connectorConfig;
     private final IDelegateFactory logFactory;
     // Using String instead of Class to avoid any accidental memory leak issues.
     private final static Map<String, IApimanLogger> loggers = new HashMap<>();
     private IConnectorInterceptor connectorInterceptor;
+    private IConnectorConfig connectorConfig;
 
     /**
      * Constructor.
      * @param componentRegistry the component registry
      * @param logFactory the log factory
-     * @param connectorFactory the backend connector factory, will be used to create {@link IConnectorConfig} instances.
      */
     public PolicyContextImpl(IComponentRegistry componentRegistry,
-            IDelegateFactory logFactory,
-            IConnectorFactory connectorFactory) {
+            IDelegateFactory logFactory) {
         this.componentRegistry = componentRegistry;
         this.logFactory = logFactory;
-        this.connectorConfig = connectorFactory.createConnectorConfig();
     }
 
     /**
@@ -128,6 +124,11 @@ public class PolicyContextImpl implements IPolicyContext {
     @Override
     public IConnectorConfig getConnectorConfiguration() {
         return connectorConfig;
+    }
+
+    @Override
+    public void setConnectorConfiguration(IConnectorConfig connectorConfig) {
+        this.connectorConfig = connectorConfig;
     }
 
 }
