@@ -87,4 +87,14 @@ public interface IPolicyContext {
      * @return the connector configuration
      */
     IConnectorConfig getConnectorConfiguration();
+
+    /**
+     * Set the connector configuration.
+     *
+     * Most usecases should simply mutate the existing configuration via
+     * {@link #getConnectorConfiguration()}.
+     *
+     * @param config the configuration
+     */
+    void setConnectorConfiguration(IConnectorConfig config);
 }

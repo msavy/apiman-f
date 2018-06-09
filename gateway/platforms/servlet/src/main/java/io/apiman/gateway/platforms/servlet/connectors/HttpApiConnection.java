@@ -82,7 +82,7 @@ public class HttpApiConnection implements IApiConnection, IApiConnectionResponse
     private boolean hasDataPolicy;
     private boolean isError = false;
 
-    private IConnectorConfig connectorConfig; // TODO actually instantiate :)
+    private IConnectorConfig connectorConfig;
 
     /**
      * Constructor.
@@ -107,6 +107,7 @@ public class HttpApiConnection implements IApiConnection, IApiConnectionResponse
         this.requiredAuthType = requiredAuthType;
         this.sslStrategy = sslStrategy;
         this.hasDataPolicy = hasDataPolicy;
+        this.connectorConfig = connectorConfig;
         this.responseHandler = handler;
 
         try {
