@@ -282,7 +282,7 @@ public class ApiRequestExecutorImpl implements IApiRequestExecutor {
                 // of the implementation as to how they should cope with the chunks.
                 handleStream();
             });
-            requestChain.policyFailureHandler(policyFailureHandler);
+            //requestChain.policyFailureHandler(policyFailureHandler);
             requestChain.doApply(request);
         };
 
@@ -808,6 +808,10 @@ public class ApiRequestExecutorImpl implements IApiRequestExecutor {
         chain.headHandler(requestHandler);
         chain.policyFailureHandler(failure -> {
             // Jump straight to the response leg.
+            System.out.println("In request policy failure handler");
+            if (responseChain == null) {
+                responseChain = createResponseChain((ignored) -> {});
+            }
             responseChain.doFailure(failure);
         });
         chain.policyErrorHandler(policyErrorHandler);
@@ -821,14 +825,17 @@ public class ApiRequestExecutorImpl implements IApiRequestExecutor {
         ResponseChain chain = new ResponseChain(policyImpls, context);
         chain.headHandler(responseHandler);
         chain.policyFailureHandler(result -> {
+            if (apiConnectionResponse != null) {
             apiConnectionResponse.abort();
+            }
             policyFailureHandler.handle(result);
         });
         chain.policyErrorHandler(result -> {
+            if (apiConnectionResponse != null) {
             apiConnectionResponse.abort();
+            }
             policyErrorHandler.handle(result);
         });
-
         return chain;
     }
 
