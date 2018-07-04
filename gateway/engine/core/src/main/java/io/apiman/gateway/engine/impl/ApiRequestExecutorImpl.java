@@ -806,7 +806,10 @@ public class ApiRequestExecutorImpl implements IApiRequestExecutor {
     private Chain<ApiRequest> createRequestChain(IAsyncHandler<ApiRequest> requestHandler) {
         RequestChain chain = new RequestChain(policyImpls, context);
         chain.headHandler(requestHandler);
-        chain.policyFailureHandler(policyFailureHandler);
+        chain.policyFailureHandler(failure -> {
+            // Jump straight to the response leg.
+            responseChain.doFailure(failure);
+        });
         chain.policyErrorHandler(policyErrorHandler);
         return chain;
     }
@@ -825,6 +828,7 @@ public class ApiRequestExecutorImpl implements IApiRequestExecutor {
             apiConnectionResponse.abort();
             policyErrorHandler.handle(result);
         });
+
         return chain;
     }
 

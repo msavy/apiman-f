@@ -17,6 +17,7 @@ package io.apiman.gateway.engine.policy;
 
 import io.apiman.gateway.engine.beans.ApiRequest;
 import io.apiman.gateway.engine.beans.ApiResponse;
+import io.apiman.gateway.engine.beans.PolicyFailure;
 import io.apiman.gateway.engine.beans.exceptions.ConfigurationParseException;
 
 /**
@@ -35,27 +36,48 @@ public interface IPolicy {
      * @throws ConfigurationParseException when unable to parse config
      */
     public Object parseConfiguration(String jsonConfiguration) throws ConfigurationParseException;
-    
+
     /**
      * Applies a policy upon a {@link ApiRequest} based on information
      * included in the request itself in addition to its context and configuration.
-     * 
+     *
      * @param request an inbound request to apply to the policy to
      * @param context contextual information
      * @param config the policy's configuration information
      * @param chain the policy chain being invoked
      */
     public void apply(ApiRequest request, IPolicyContext context, Object config, IPolicyChain<ApiRequest> chain);
-    
+
     /**
      * Applies a policy upon a {@link ApiResponse} based on information
      * included in the response itself in addition to its context and configuration.
-     * 
+     *
      * @param response an outbound response to apply the policy to
      * @param context contextual information
      * @param config the policy's configuration information
      * @param chain chain the policy chain being invoked
      */
     public void apply(ApiResponse response, IPolicyContext context, Object config, IPolicyChain<ApiResponse> chain);
-    
+
+    /**
+     * <p>
+     * Process any failure emitted by a subsequent policy in the chain.
+     * <p>
+     * For example, implementors may wish to add or remove certain headers, even in
+     * the case of failures.
+     * <p>
+     * By default, this is a no-op and providing an implementation is not required.
+     * <p>
+     * <em>Implementors should take care not to perform long-running actions
+     * as this method is run synchronously.</em> // NB: maybe need to add extra method to handle forwarding this? or repurpose..? or limit? i think this needs to support async otherwise they could use stuff in context and break everything
+     *
+     * @param failure the policy failure
+     * @param context contextual information
+     * @param config the policy's configuration information
+     * @param chain the chain
+     */
+    default void processFailure(PolicyFailure failure, IPolicyContext context, Object config,  IPolicyFailureChain chain) {
+        chain.doFailure(failure);
+    }
+
 }
