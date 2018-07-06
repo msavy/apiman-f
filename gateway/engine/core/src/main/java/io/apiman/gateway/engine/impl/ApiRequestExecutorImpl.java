@@ -282,7 +282,6 @@ public class ApiRequestExecutorImpl implements IApiRequestExecutor {
                 // of the implementation as to how they should cope with the chunks.
                 handleStream();
             });
-            //requestChain.policyFailureHandler(policyFailureHandler);
             requestChain.doApply(request);
         };
 
@@ -808,8 +807,9 @@ public class ApiRequestExecutorImpl implements IApiRequestExecutor {
         chain.headHandler(requestHandler);
         chain.policyFailureHandler(failure -> {
             // Jump straight to the response leg.
-            System.out.println("In request policy failure handler");
+            // It will likely not have been initialised, so create one.
             if (responseChain == null) {
+                // Its response will not be used as we take the failure path only, so we just use an empty lambda.
                 responseChain = createResponseChain((ignored) -> {});
             }
             responseChain.doFailure(failure);

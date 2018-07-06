@@ -156,7 +156,7 @@ public abstract class Chain<H> extends AbstractStream<H> implements IAbortable, 
         }
     }
 
-    void doApplyFailure(PolicyFailure failure) {
+    protected void doApplyFailure(PolicyFailure failure) {
         try {
             this.failure = failure;
 

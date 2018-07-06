@@ -67,9 +67,6 @@ public interface IPolicy {
      * the case of failures.
      * <p>
      * By default, this is a no-op and providing an implementation is not required.
-     * <p>
-     * <em>Implementors should take care not to perform long-running actions
-     * as this method is run synchronously.</em> // NB: maybe need to add extra method to handle forwarding this? or repurpose..? or limit? i think this needs to support async otherwise they could use stuff in context and break everything
      *
      * @param failure the policy failure
      * @param context contextual information
