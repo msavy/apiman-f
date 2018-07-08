@@ -250,7 +250,7 @@ public class ApiRequestExecutorImpl implements IApiRequestExecutor {
             requestChain = createRequestChain((ApiRequest req) -> {
                 IConnectorInterceptor connectorInterceptor = context.getConnectorInterceptor();
                 IApiConnector connector;
-
+              
                 if (connectorInterceptor == null) {
                     connector = connectorFactory.createConnector(req,
                             api,

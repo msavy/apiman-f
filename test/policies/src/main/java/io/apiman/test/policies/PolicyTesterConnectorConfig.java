@@ -18,9 +18,6 @@ package io.apiman.test.policies;
 
 import io.apiman.gateway.engine.impl.AbstractConnectorConfig;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 /**
  * Test connector config
  *

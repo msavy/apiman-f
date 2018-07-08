@@ -29,7 +29,7 @@ import java.util.TreeSet;
 public class TestConnectorConfigImpl extends AbstractConnectorConfig {
     static final Set<String> REQUEST = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     static final Set<String> RESPONSE = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-
+  
     static {
         REQUEST.add("Transfer-Encoding");
         REQUEST.add("X-API-Key");
