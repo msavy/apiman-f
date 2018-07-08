@@ -18,8 +18,8 @@ package io.apiman.gateway.engine.impl;
 
 import io.apiman.gateway.engine.IConnectorConfig;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 /**
  * Test implementation of {@link IConnectorConfig}
  *
@@ -27,9 +27,9 @@ import java.util.Set;
  */
 @SuppressWarnings("nls")
 public class TestConnectorConfigImpl extends AbstractConnectorConfig {
-    static final Set<String> REQUEST = new LinkedHashSet<>();
-    static final Set<String> RESPONSE = new LinkedHashSet<>();
-
+    static final Set<String> REQUEST = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    static final Set<String> RESPONSE = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+  
     static {
         REQUEST.add("Transfer-Encoding");
         REQUEST.add("X-API-Key");

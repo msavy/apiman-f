@@ -18,8 +18,8 @@ package io.apiman.gateway.platforms.servlet.connectors;
 
 import io.apiman.gateway.engine.impl.AbstractConnectorConfig;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Servlet implementation of {@link AbstractConnectorConfig}.
@@ -29,9 +29,8 @@ import java.util.Set;
 @SuppressWarnings("nls")
 public class ConnectorConfigImpl extends AbstractConnectorConfig {
 
-    private static final Set<String> SUPPRESSED_REQUEST_HEADERS = new LinkedHashSet<>();
-
-    private static final Set<String> SUPPRESSED_RESPONSE_HEADERS = new LinkedHashSet<>();
+    private static final Set<String> SUPPRESSED_REQUEST_HEADERS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    private static final Set<String> SUPPRESSED_RESPONSE_HEADERS = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
     static {
         SUPPRESSED_REQUEST_HEADERS.add("Transfer-Encoding");

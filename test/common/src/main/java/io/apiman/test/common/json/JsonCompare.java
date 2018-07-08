@@ -18,13 +18,9 @@ package io.apiman.test.common.json;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.text.MessageFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Stack;
 
-import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -49,7 +45,6 @@ public class JsonCompare {
     private JsonArrayOrderingType arrayOrdering = JsonArrayOrderingType.strict;
     private boolean compareNumericIds = true;
     private boolean ignoreCase = false;
-    private Stack<Object> currentPath = new Stack<>();
 
     /**
      * Constructor.
@@ -57,7 +52,7 @@ public class JsonCompare {
     public JsonCompare() {
     }
 
-    public static class WildcardComparator extends DefaultComparator {
+    public class WildcardComparator extends DefaultComparator {
 
         private Map<String, String> idCorrelationMap = new LinkedHashMap<>();
 
@@ -78,169 +73,46 @@ public class JsonCompare {
         public void compareValues(String prefix, Object expectedValue, Object actualValue, JSONCompareResult result)
                 throws JSONException {
 
-            if (prefix.toLowerCase().equals("id")) {
+            if (!compareNumericIds &&
+                    (prefix.toLowerCase().equals("id") || prefix.toLowerCase().endsWith(".id"))) {
                 return;
+
             }
 
+            // NB: certain out-of-orderings could cause us to incorrectly set the wrong resolved value (by mistaking very similar
+            // objects or resolving the variable too early before looking at other distinguishing fields).
+            // This is difficult to fix as there is no way of explicitly delaying the value substitution until last, and is impossible to
+            // disambiguate in certain situations.
+            if (expectedValue instanceof String && ((String)expectedValue).startsWith("CORRELATE_VALUE_")) {
+                String correlationIndex = ((String)expectedValue).substring(16);
 
-//            if (expectedValue instanceof String && ((String)expectedValue).startsWith("CORRELATE_VALUE_")) {
-//                String correlationIndex = ((String)expectedValue).substring(16);
-//
-//                // If an entry has already been set, we'll expect all subsequent values for the same key to
-//                // be the same. Effectively, the first value seen for that key sets the expectation.
-//                if (idCorrelationMap.containsKey(correlationIndex)) {
-//                    String correlationValue = idCorrelationMap.get(correlationIndex);
-//                    String actualCorrelationValue = String.valueOf(actualValue);
-//
-//                    // If they match, continue as this indicates success.
-//                    if (correlationValue.equalsIgnoreCase(actualCorrelationValue)) {
-//                        System.out.println("Correlated ..." + correlationValue + " on " + correlationIndex);
-//                        return;
-//                    } else {
-//                        // If not match, throw exception. TODO better message
-//                        result.fail("A field was expected to have a correlated value, but it did not match", correlationValue, actualCorrelationValue);
-//                        throw new RuntimeException("Correlation failure");
-//                    }
-//                } else {
-//                    System.out.println("Set correlationIndex:value " + correlationIndex + ":" + String.valueOf(actualValue));
-//                    // Set expectation as the first value seen. E.g. 1 = foo-bar-key
-//                    idCorrelationMap.put(correlationIndex, String.valueOf(actualValue));
-//                    return;
-//                }
-//            }
+                // If an entry has already been set, we'll expect all subsequent values for the same key to
+                // be the same. Effectively, the first value seen for that key sets the expectation.
+                if (idCorrelationMap.containsKey(correlationIndex)) {
+                    String correlationValue = idCorrelationMap.get(correlationIndex);
+                    String actualCorrelationValue = String.valueOf(actualValue);
+
+                    // If they match, continue as this indicates success.
+                    if (correlationValue.equalsIgnoreCase(actualCorrelationValue)) {
+                        System.out.println("Correlated ..." + correlationValue + " on " + correlationIndex);
+                        return;
+                    } else {
+                        result.fail("A field's resolved runtime value, but it did not correlate as expected", correlationValue, actualCorrelationValue);
+                        throw new RuntimeException("Correlation failure");
+                    }
+                } else {
+                    System.out.println("Set correlationIndex:value " + correlationIndex + ":" + String.valueOf(actualValue));
+                    // Set expectation as the first value seen. E.g. 1 = foo-bar-key
+                    idCorrelationMap.put(correlationIndex, String.valueOf(actualValue));
+                    return;
+                }
+            }
 
             if (expectedValue instanceof String && ((String)expectedValue).equals("*") && actualValue != null) {
                 // Wildcard: We want the key to exist and have a value; we don't want to assert a specific value.
                 return;
             }
             super.compareValues(prefix, expectedValue, actualValue, result);
-        }
-    }
-
-
-    /**
-     * Asserts that the JSON document matches what we expected.
-     *
-     * Note: the input streams should be closed by the caller
-     * @param expectedJson
-     * @param actualJson
-     */
-    public void assertJson(InputStream expectedJson, InputStream actualJson) throws Exception {
-        JsonNode expected = jacksonParser.readTree(expectedJson);
-        JsonNode actual = jacksonParser.readTree(actualJson);
-        //String expectedS = IOUtils.toString(expectedJson);
-        //String actualS = IOUtils.toString(actualJson);
-
-        assertJson(expected, actual);
-        //assertJson(expected, actual);
-
-//        Configuration config = Configuration.empty().when(Option.IGNORING_ARRAY_ORDER,
-//                Option.IGNORING_EXTRA_ARRAY_ITEMS,
-//                Option.IGNORING_EXTRA_FIELDS);
-//
-//        JsonAssert.assertJsonEquals(expected, actual, config);
-    }
-
-    public static void main(String[] args) throws Exception {
-        //JsonCompare jc = new JsonCompare();
-        //jc.assertJson(expectedJson, actualJson);
-
-        //new JsonCompare().assertJson();
-
-
-//
-//        new JsonCompare().assertJson(
-//                "{\n" +
-//                "    \"Orgs\": [{\n" +
-//                "        \"a\": \"b\",\n" +
-//                "        \"thingId\": \"CORRELATE_VALUE_1\",\n" +
-//                "        \"thing2Id\": \"CORRELATE_VALUE_1\"\n" +
-//                "    },\n" +
-//                "    {\n" +
-//                "        \"a\": \"c\",\n" +
-//                "        \"thingId\": \"CORRELATE_VALUE_2\",\n" +
-//                "        \"thing2Id\": \"CORRELATE_VALUE_1\"\n" +
-//                "    }]\n" +
-//                "}\n",
-//
-//                "{\n" +
-//                "    \"Orgs\": [{\n" +
-//                "        \"a\": \"c\",\n" +
-//                "        \"thingId\": 123,\n" +
-//                "        \"thing2Id\": 123\n" +
-//                "    },\n" +
-//                "    {\n" +
-//                "        \"a\": \"b\",\n" +
-//                "        \"thingId\": 999,\n" +
-//                "        \"thing2Id\": 123\n" +
-//                "    }]\n" +
-//                "}");
-
-//        new JsonCompare().assertJson(
-//                "{\"organization\":{\"id\":\"Organization1\"},\"id\":\"API1\",\"name\":\"API 1\",\"description\":\"CORRELATE_VALUE_1\",\"createdBy\":\"CORRELATE_VALUE_1\"}\n"
-//               ,
-//                "{\"organization\":{\"id\":\"Organization1\",\"name\":\"Organization 1\",\"description\":\"admin\",\"createdBy\":\"admin\",\"createdOn\":1527084576734,\"modifiedBy\":\"admin\","
-//                + "\"modifiedOn\":1527084576734},\"id\":\"API1\",\"name\":\"API 1\",\"description\":\"adminx\","
-//                + "\"createdBy\":\"admin\",\"createdOn\":1527084580868,\"numPublished\":null}"
-//                );
-
-      InputStream ise = new FileInputStream("/tmp/expectedOriginal.json");
-      String ises = IOUtils.toString(ise, Charset.defaultCharset());
-      InputStream isa = new FileInputStream("/tmp/actualOrginal.json"); // nice typo
-      String isas = IOUtils.toString(isa, Charset.defaultCharset());
-
-      //new JsonCompare().assertJson(ise, isa);
-
-      JSONAssert.assertEquals(ises, isas, false);
-
-
-//        String expected = "";
-//
-//        String actual = "";
-//
-//        Configuration config = Configuration.empty().when(Option.IGNORING_ARRAY_ORDER,
-//                Option.IGNORING_EXTRA_ARRAY_ITEMS,
-//                Option.IGNORING_EXTRA_FIELDS,
-//                Option.IGNORING_VALUES);
-//
-//        JsonAssert.assertJsonEquals(expected, actual, config);
-
-        System.out.println("seems it worked?");
-
-    }
-
-    public void assertJson(String expectedJson, String actualJson) {
-        try {
-            //throw new JSONException("finish me");
-            JSONAssert.assertEquals(expectedJson, actualJson, new WildcardComparator(JSONCompareMode.LENIENT));
-        } catch (JSONException e1) {
-            throw new RuntimeException(e1);
-        }
-
-    }
-
-    /**
-     * Asserts that the JSON document matches what we expected.
-     * @param expectedJson
-     * @param actualJson
-     */
-    public void assertJson(JsonNode expectedJson, JsonNode actualJson) {
-
-        try {
-            String expectedS = jacksonParser.writeValueAsString(expectedJson);
-            String actualS = jacksonParser.writeValueAsString(actualJson);
-
-            JSONAssert.assertEquals(expectedS, actualS, new WildcardComparator(JSONCompareMode.LENIENT));
-//            Configuration config = Configuration.empty().when(Option.IGNORING_ARRAY_ORDER,
-//                    Option.IGNORING_EXTRA_ARRAY_ITEMS,
-//                    Option.IGNORING_EXTRA_FIELDS);
-//
-//            JsonAssert.assertJsonEquals(expectedS, actualS, config);
-        } catch (JsonProcessingException e1) {
-            throw new RuntimeException(e1);
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
 
 
@@ -483,32 +355,43 @@ public class JsonCompare {
 //        }
     }
 
+
     /**
-     * Format an assertion message, including the current path.
-     * @param pattern
-     * @param params
+     * Asserts that the JSON document matches what we expected.
+     *
+     * Note: the input streams should be closed by the caller
+     * @param expectedJson expected
+     * @param actualJson actual
+     * @throws Exception error when parsing json or validating structure
      */
-    private String message(String pattern, Object ... params) {
-        return path() + "::" + MessageFormat.format(pattern, params);
+    public void assertJson(InputStream expectedJson, InputStream actualJson) throws Exception  {
+        JsonNode expected = jacksonParser.readTree(expectedJson);
+        JsonNode actual = jacksonParser.readTree(actualJson);
+        assertJson(expected, actual);
+    }
+
+    public void assertJson(String expectedJson, String actualJson) {
+        try {
+            JSONAssert.assertEquals(expectedJson, actualJson, new WildcardComparator(JSONCompareMode.LENIENT));
+        } catch (JSONException e1) {
+            throw new RuntimeException(e1);
+        }
+
     }
 
     /**
-     * Format the current path as a string.
+     * Asserts that the JSON document matches what we expected.
+     * @param expectedJson
+     * @param actualJson
      */
-    private String path() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("$ROOT");
-        for (Object pathElement : currentPath) {
-            if (pathElement instanceof Integer) {
-                builder.append('[');
-                builder.append(pathElement);
-                builder.append(']');
-            } else {
-                builder.append('.');
-                builder.append(pathElement);
-            }
+    public void assertJson(JsonNode expectedJson, JsonNode actualJson) {
+        try {
+            String expectedS = jacksonParser.writeValueAsString(expectedJson);
+            String actualS = jacksonParser.writeValueAsString(actualJson);
+            JSONAssert.assertEquals(expectedS, actualS, new WildcardComparator(JSONCompareMode.LENIENT));
+        } catch (JsonProcessingException | JSONException e1) {
+            throw new RuntimeException(e1);
         }
-        return builder.toString();
     }
 
     /**

@@ -19,8 +19,8 @@ package io.apiman.gateway.engine.impl;
 import io.apiman.gateway.engine.IConnectorConfig;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Connector configuration with lazy initialisation of customised suppressions.
@@ -34,21 +34,11 @@ import java.util.Set;
  */
 public abstract class AbstractConnectorConfig implements IConnectorConfig {
 
-    Set<String> suppressedRequestHeaders;
-    boolean modifiedDefaultRequestHeaders = false;
+    protected Set<String> suppressedRequestHeaders;
+    private boolean modifiedDefaultRequestHeaders = false;
 
-    Set<String> suppressedResponseHeaders;
-    boolean modifiedDefaultResponseHeaders = false;
-
-// TODO: cache common request and response suppression maps. Some quick and dirty way of looking it up?
-//    static LRUMap<String, Set<String>> cache = new LRUMap<String, Set<String>>(1000) {
-//        private static final long serialVersionUID = -18620070710843930L;
-//
-//        @Override
-//        protected void handleRemovedElem(java.util.Map.Entry<String, Set<String>> eldest) {
-//            // Don't need to do anything.
-//        }
-//    };
+    protected Set<String> suppressedResponseHeaders;
+    private boolean modifiedDefaultResponseHeaders = false;
 
     /**
      * Suppressed request headers
@@ -63,7 +53,7 @@ public abstract class AbstractConnectorConfig implements IConnectorConfig {
     }
 
     /**
-     * Construct no suppressed request nor response headers.
+     * No suppressed request nor response headers.
      */
     public AbstractConnectorConfig() {
         this.suppressedRequestHeaders = Collections.emptySet();
@@ -114,15 +104,19 @@ public abstract class AbstractConnectorConfig implements IConnectorConfig {
 
     private void copyRequestMap() {
         if (!modifiedDefaultRequestHeaders) {
-            this.suppressedRequestHeaders = new LinkedHashSet<>(suppressedRequestHeaders);
+            TreeSet<String> reqCopy = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            reqCopy.addAll(suppressedRequestHeaders);
             modifiedDefaultRequestHeaders = true;
+            this.suppressedRequestHeaders = reqCopy;
         }
     }
 
     private void copyResponseMap() {
         if (!modifiedDefaultResponseHeaders) {
-            this.suppressedResponseHeaders = new LinkedHashSet<>(suppressedResponseHeaders);
+            TreeSet<String> resCopy = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            resCopy.addAll(suppressedResponseHeaders);
             modifiedDefaultResponseHeaders = true;
+            this.suppressedResponseHeaders = resCopy;
         }
     }
 }

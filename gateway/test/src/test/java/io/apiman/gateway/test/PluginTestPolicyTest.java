@@ -15,13 +15,13 @@
  */
 package io.apiman.gateway.test;
 
+import io.apiman.gateway.test.junit.GatewayRestTestPlan;
+import io.apiman.gateway.test.junit.GatewayRestTester;
+
 import java.io.File;
 
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-
-import io.apiman.gateway.test.junit.GatewayRestTestPlan;
-import io.apiman.gateway.test.junit.GatewayRestTester;
 
 /**
  * Make sure plugins work.

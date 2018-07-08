@@ -18,13 +18,15 @@ package io.apiman.test.policies;
 
 import io.apiman.gateway.engine.impl.AbstractConnectorConfig;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
+/**
+ * Test connector config
+ *
+ * @author Marc Savy {@literal <marc@rhymewithgravy.com>}
+ */
 @SuppressWarnings("nls")
 public class PolicyTesterConnectorConfig extends AbstractConnectorConfig {
-    static final Set<String> REQUEST = new LinkedHashSet<>();
-    static final Set<String> RESPONSE = new LinkedHashSet<>();
+    static final Set<String> REQUEST = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    static final Set<String> RESPONSE = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
     static {
         REQUEST.add("Transfer-Encoding");
