@@ -17,10 +17,15 @@
 package io.apiman.gateway.engine;
 
 /**
+ * Models a procedure that accepts no parameters and returns nothing.
  *
  * @author Marc Savy {@literal <marc@rhymewithgravy.com>}
  */
 @FunctionalInterface
 public interface Procedure {
+
+    /**
+     * The procedure to execute
+     */
     void execute();
 }

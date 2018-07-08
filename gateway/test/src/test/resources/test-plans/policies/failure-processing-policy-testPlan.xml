@@ -7,7 +7,7 @@
   </testGroup>
 
   <testGroup name="Trigger policy failure. Expect processing of failures.">
-    <test name="Hit rate limit">test-plan-data/policies/failure-processing/003-failure.resttest</test>
+    <test name="Hit rate limit, then TestPolicy processes failure.">test-plan-data/policies/failure-processing/003-failure.resttest</test>
   </testGroup>
 
 </testPlan>
